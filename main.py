@@ -8,6 +8,20 @@ from Functions.kilosort import kilosort_run
 
 
 def main():
+    """
+    Main function to orchestrate the pipeline for creating a channel map, concatenating .dat files,
+    and running Kilosort.
+
+    Parameters
+    ----------
+    folder_path : str
+        Path to the directory containing the data and .xml files.
+
+    Raises
+    ------
+    SystemExit
+        Exits the program if the provided folder path is invalid or if an error occurs during processing.
+    """
     # Check if a path is provided, give instructions if not
     if len(sys.argv) != 2:
         print("Usage: python main.py <folder_path>")
