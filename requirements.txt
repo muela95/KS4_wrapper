@@ -1,0 +1,5 @@
+spikeinterface
+kilosort
+torch
+numpy
+scipy
