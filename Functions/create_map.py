@@ -4,6 +4,8 @@ import scipy.io as sio
 from pathlib import Path
 
 
+import xml.etree.ElementTree as ET
+
 def load_xml(file_path):
     """
     Load XML and extract data for channel map creation.
@@ -16,7 +18,7 @@ def load_xml(file_path):
     Returns
     -------
     dict
-        Parsed data containing channel groups.
+        Parsed data containing channel groups with classified channels.
     xml_tree
         Parsed XML tree.
     """
@@ -29,14 +31,22 @@ def load_xml(file_path):
     
     # Extract groups from anatomicalDescription
     for group in root.findall(".//anatomicalDescription/channelGroups/group"):
-        channels = [int(ch.text) for ch in group.findall("channel")]
-        channel_groups.append({"Channels": channels})
+        channels = []
+        skipped_channels = []
 
-    # What is the spikeDetection part of the .xml?? is it relevant? seems redundant, not including it for now
-    # Extract groups from spikeDetection
-    #for group in root.findall(".//spikeDetection/channelGroups/group"):
-    #    channels = [int(ch.text) for ch in group.findall("channels/channel")]
-    #    channel_groups.append({"Channels": channels})
+        for ch in group.findall("channel"):
+            channel_number = int(ch.text)
+            skip_value = ch.get("skip", "0")  # Default to "0" if attribute is missing
+            
+            if skip_value == "0":
+                channels.append(channel_number)
+            elif skip_value == "1":
+                skipped_channels.append(channel_number)
+
+        channel_groups.append({
+            "Channels": channels,
+            "SkippedChannels": skipped_channels
+        })
 
     return {"ChannelGroups": channel_groups}, root
 
@@ -106,6 +116,7 @@ def create_channel_map_file(basepath=None, basename=None, electrode_type=None, r
     if reject_channels is None:
         reject_channels = []
 
+
     xml_path = basepath / f"{basename}.xml"
 
     # Check if the XML file exists
@@ -139,7 +150,7 @@ def create_channel_map_file(basepath=None, basename=None, electrode_type=None, r
                 y.append(-i * 20)
             x = [xi + g * 200 for xi in x]
             hor_dist = 40
-            vert_dist = 20
+            vert_dist = 40
 
         elif electrode_type == 'neurogrid':
             x = []
@@ -251,7 +262,7 @@ def create_channel_map_file(basepath=None, basename=None, electrode_type=None, r
         print(f"Error reading sampling rate from .xml file: {e}")
     try:
         settings = {"n_groups": n_groups,
-                    "n_chan": n_chan,
+                    "n_chan": Nchannels,
                     "sampling_freq": sampling_freq,
                     "electrode_type": electrode_type,
                     "hor_dist": hor_dist,

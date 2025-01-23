@@ -1,6 +1,6 @@
-# KS4_wrapper
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+for GPU use:
+conda install pytorch pytorch-cuda=11.8 -c pytorch -c nvidia
+conda install conda-forge::pynvml
 
 
 
