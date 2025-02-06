@@ -29,7 +29,11 @@ def concatenate(path, xml_file_name):
     FileNotFoundError
         If no .dat files are found in the specified path.
     """
+    global_job_kwargs = dict(n_jobs=-1, chunk_duration="1s", progress_bar=True)
+    si.set_global_job_kwargs(**global_job_kwargs)
 
+    # Verify the settings
+    print(si.get_global_job_kwargs())
     basepath = path
     dat_files = glob.glob(os.path.join(basepath, '**', '*amplifier.dat'), recursive=True)
     print(dat_files)
